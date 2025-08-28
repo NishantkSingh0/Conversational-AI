@@ -46,7 +46,7 @@ project/
 * Memory Management: Previous messages are stored to maintain conversation flow.
 
 ## Demo User Interaction
-[🎥 Watch Demo Video](Sample_User_Interaction)
+[🎥 Watch Demo Video](Sample_User_Interaction.mp4)
 
 ## Installation & Setup
 1. Clone the repository
