@@ -56,9 +56,9 @@ cd delishbot
 ```
 2. Set up environment variables
 ```
-OpenAI=your_openai_api_key
-TTS=your_openai_api_key
-SST=your_openai_api_key
+Model=your_GPT3.5_api_key
+TTS=your_GPT4-TTS_api_key
+STT=your_Whisper3_api_key
 ```
 3. Run the Flask app
 ```
