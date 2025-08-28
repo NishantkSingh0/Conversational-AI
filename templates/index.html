@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversational AI & Voice Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #667eea;
+            min-height: 87vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            /* height: 60%; */
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            /* height: 70%; */
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.bot {
+            text-align: left;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .controls {
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .input-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            /* margin-bottom: 15px; */
+        }
+
+        .mic-container {
+            position: relative;
+            width: 90%;
+            box-sizing: border-box; 
+        }
+
+        .mic-button {
+            width: 400px;
+            height: 70px;
+            border-radius: 25px;
+            border: none;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mic-button:hover {
+            transform: translateY(3px);
+            box-shadow: 0 8px 25px rgba(255,107,107,0.5);
+        }
+
+        .mic-button.recording {
+            background: linear-gradient(135deg, #ff3838, #ff1744);
+            animation: pulse 1s infinite;
+        }
+
+        .wave-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 25px;
+            border: 3px solid rgba(255,255,255,0.6);
+            animation: wave 2s infinite;
+            opacity: 0;
+        }
+
+        .mic-button.recording .wave-animation {
+            opacity: 1;
+        }
+
+        .mic-button.recording .wave-animation:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .mic-button.recording .wave-animation:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            width: 250px; /* fixed width */
+            margin: 0 auto; /* centers the container inside the parent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .file-upload input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-btn {
+            padding: 50px 120px;
+            /* margin-bottom: 10px; */
+            /* background: rgba(0, 128, 0, 0.15); greenish background with transparency */
+            /* color: rgb(44, 38, 38); */
+            /* border: 2px solid rgba(0, 100, 0, 0.5); greenish border */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .file-upload-btn:hover {
+            padding: 20px 50px;
+            border-radius: 100px;
+            background: rgba(0, 128, 0, 0.25); /* darker green on hover */
+            border-color: rgba(0, 100, 0, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .file-upload-btn.has-file {
+            border-radius: 100px;
+            padding: 20px 50px;
+            background: rgba(0, 128, 0, 0.25);
+            border-color: rgba(0, 100, 0, 0.7);
+            font-size: 1rem;
+        }
+
+        .send-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #5f27cd, #341f97);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(95,39,205,0.3);
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(95,39,205,0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            text-align: center;
+            color: rgba(59, 54, 54, 0.8);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes wave {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .input-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mic-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1.3rem;
+            }
+            
+            .message-bubble {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Conversational AI</h1>
+            <p>Voice-powered intelligent assistant</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message bot">
+                    <div class="message-bubble">
+                        👋 Hi! i am DelishBot, a friendly and empathetic food delivery support assistant. feel free to ask any query. Report any issue, or Rate our service.
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="input-section">
+                    <div class="mic-container">
+                        <button class="mic-button" id="micButton" onclick="toggleRecording()">
+                            <span>🎤</span>
+                            <div class="wave-animation"></div>
+                            <div class="wave-animation"></div>
+                            <div class="wave-animation"></div>
+                        </button>
+                    </div>
+
+                    <div class="file-upload">
+                        <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(this)">
+                        <label for="imageInput" class="file-upload-btn" id="fileUploadBtn">
+                            Upload&nbsp;img
+                        </label>
+                    </div>
+
+                    <button class="send-button" id="sendButton" onclick="processInput()" disabled>
+                        Send&nbsp;✨
+                    </button>
+                </div>
+
+                <div class="status" id="status"></div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" controls style="display: none;"></audio>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordedAudio = null;
+        let uploadedImage = null;
+        let isProcessing = false;
+
+        async function toggleRecording() {
+            if (isProcessing) return;
+
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        recordedAudio = audioBlob;
+                        updateSendButton();
+                        setStatus('Recording saved! Click Send to process.');
+                        
+                        // Stop all tracks to release microphone
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    
+                    const micButton = document.getElementById('micButton');
+                    micButton.classList.add('recording');
+                    micButton.innerHTML = '<span>⏹️</span><div class="wave-animation"></div><div class="wave-animation"></div><div class="wave-animation"></div>';
+                    
+                    setStatus('🔴 Recording... Click to stop');
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    setStatus('❌ Microphone access denied');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                const micButton = document.getElementById('micButton');
+                micButton.classList.remove('recording');
+                micButton.innerHTML = '<span>🎤</span><div class="wave-animation"></div><div class="wave-animation"></div><div class="wave-animation"></div>';
+            }
+        }
+
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                uploadedImage = input.files[0];
+                const fileUploadBtn = document.getElementById('fileUploadBtn');
+                fileUploadBtn.textContent = `${uploadedImage.name}`;
+                fileUploadBtn.classList.add('has-file');
+                updateSendButton();
+                setStatus(`Image "${uploadedImage.name}" ready for upload`);
+            }
+        }
+
+        function updateSendButton() {
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = !recordedAudio;
+        }
+
+        async function processInput() {
+            if (!recordedAudio || isProcessing) return;
+
+            isProcessing = true;
+            setStatus('🔄 Processing your input...');
+            
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<span class="loading"></span> Processing...';
+
+            try {
+                // First upload image if exists
+                let imageFilename = null;
+                if (uploadedImage) {
+                    imageFilename = uploadedImage.name;
+                }
+
+                // Convert audio to base64
+                const audioBase64 = await blobToBase64(recordedAudio);
+                
+                // Prepare data for Convert_to_text
+                const inputData = {
+                    audio: audioBase64,
+                    image: imageFilename
+                };
+
+                // Call Convert_to_text endpoint
+                const userQueryText = await Convert_to_text(inputData);
+                
+                if (userQueryText) {
+                    // Display user message
+                    addMessage(userQueryText, 'user');
+                    
+                    // Send to backend and get response
+                    const response = await sendToBackend(userQueryText);
+                    
+                    if (response) {
+                        // Display bot response
+                        addMessage(response.TextOutput, 'bot');
+                        
+                        // Play audio response
+                        if (response.VoiceOutput) {
+                            playAudioResponse(response.VoiceOutput);
+                        } else {
+                            setStatus('Any other query');
+                        }
+                    }
+                }
+
+                // Reset for next input
+                resetInputs();
+                
+            } catch (error) {
+                console.error('Error processing input:', error);
+                setStatus('❌ Error processing your request');
+                addMessage('Sorry, I encountered an error processing your request. Please try again.', 'bot');
+                resetInputs();
+            }
+        }
+
+        async function Convert_to_text(data) {
+            try {
+                const response = await fetch('/convert_to_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error.error || 'Failed to convert to text');
+                }
+
+                const result = await response.json();
+                return result.text;
+                
+            } catch (error) {
+                console.error('Error in Convert_to_text:', error);
+                throw error;
+            }
+        }
+
+        async function sendToBackend(userQuery) {
+            try {
+                setStatus('Responding...');
+                
+                const response = await fetch('/respond', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: userQuery })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to get response');
+                }
+
+                const data = await response.json();
+                return data;
+                
+            } catch (error) {
+                console.error('Error sending to backend:', error);
+                throw error;
+            }
+        }
+
+        function playAudioResponse(audioBase64) {
+            try {
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = `data:audio/wav;base64,${audioBase64}`;
+                audioPlayer.play();
+                setStatus('Responding...');
+                
+                audioPlayer.onended = () => {
+                    setStatus('Any other query');
+                };
+            } catch (error) {
+                console.error('Error playing audio:', error);
+                setStatus('Any other query');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.textContent = text;
+            
+            messageDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function resetInputs() {
+            recordedAudio = null;
+            uploadedImage = null;
+            isProcessing = false;
+            
+            // Reset UI
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            sendButton.innerHTML = 'Send ✨';
+            
+            const fileUploadBtn = document.getElementById('fileUploadBtn');
+            fileUploadBtn.textContent = 'Upload_Img';
+            fileUploadBtn.classList.remove('has-file');
+            
+            const imageInput = document.getElementById('imageInput');
+            imageInput.value = '';
+            
+            setStatus('Any other Query');
+        }
+
+        function setStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        async function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    // result looks like "data:audio/wav;base64,AAA..."
+                    const base64Data = reader.result.split(',')[1];
+                    resolve(base64Data);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setStatus('Click mic button to start conversation');
+            updateSendButton();
+        });
+    </script>
+</body>
+</html>

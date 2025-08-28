@@ -1,0 +1,30 @@
+# main.py
+
+The main.py file serves as the central controller of the application, managing the flow between the user interface, audio processing, image analysis, and AI response generation. It runs a Flask web server that connects the frontend (web UI) with the backend logic. When a user interacts with the system, the main.py file handles different actions: it can take an audio recording from the user, convert it into text, and optionally process an uploaded image to extract details. It then combines this information and sends it to an AI model for generating a response. This response is returned to the user both as text and as an audio message. Additionally, the file manages conversation history using memory to ensure the assistant maintains context across multiple messages. In short, main.py acts as the backbone of the application, routing user inputs, triggering the right processing functions, and returning intelligent responses in a seamless manner.
+
+
+# Converser.py
+
+The Converser.py file is responsible for handling the conversion between speech and text, enabling voice-based interaction in the application. It connects to the OpenAI API to provide two key features: speech-to-text and text-to-speech. When a user sends an audio message, the SpeechToText function takes the audio file, sends it to the API, and converts the spoken words into written text for further processing by the assistant. Similarly, the TextToSpeech function takes the AI’s text response and converts it into natural-sounding audio, allowing the user to hear the reply. This file essentially powers the voice interaction capability of the system, making the experience more engaging and accessible by supporting both listening and speaking modes.
+
+
+# Memory.py
+
+The Memory.py file is responsible for managing the chatbot’s conversation memory, ensuring that DelishBot can maintain context during interactions. It stores recent user inputs and bot responses in a structured way, so the assistant remembers the last few exchanges and provides relevant, connected answers. This memory system creates a more natural and human-like experience by avoiding repetitive or disconnected responses. Essentially, this file enables the chatbot to retain short-term conversation history and deliver context-aware support.
+
+
+# Model.py
+
+The Model.py file acts as the main AI model of the system, serving as the voice of DelishBot, a friendly and empathetic food delivery support assistant. Its primary role is to handle conversations with users by taking their queries and generating thoughtful, helpful, and context-aware responses. It uses the OpenAI API to process the conversation history and respond in a natural, human-like manner, following the assistant’s personality guidelines. This is essentially the core intelligence of the chatbot, ensuring that users receive clear, polite, and supportive responses throughout their interaction.
+
+
+# imageProcessor.py
+
+The imageProcessor.py file is responsible for handling all image-related processing in the application. When a user uploads an image, this file analyzes it and extracts useful details, converting them into descriptive text. These details are then combined with the user’s query to provide a more accurate and personalized response. 
+
+
+# templates/index.html
+
+The index.html file is the frontend interface of the application, combining HTML, CSS, and JavaScript to deliver a smooth and interactive user experience. It provides the structure and design for the chatbot UI, including input fields, buttons, audio recording features, and image upload options. The embedded JavaScript handles user actions, such as recording audio, uploading images, and sending these inputs to the backend through API calls. It also receives responses from the server (both text and audio) and displays them in the chat interface.
+
+
