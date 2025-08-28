@@ -75,7 +75,7 @@ python main.py
 
 ## Future Enhancements
 
-✅ Multi-language support
-✅ Advanced image recognition for menu items
-✅ Integration with order tracking APIs
-✅ Improved UI for better user experience
+✅ Multi-language support  
+✅ Advanced image recognition for menu items  
+✅ Integration with order tracking APIs  
+✅ Improved UI for better user experience  
